@@ -19,6 +19,9 @@ public class Model {
 	private ArtsmiaDAO dao;
 	private Map<Integer, Artist> idMap;
 	private String ruolo;
+	private List<Artist> percorsoMigliore;
+	private int massimo;
+	private int esposizioni;
 	
 	public Model() {
 		this.dao = new ArtsmiaDAO();
@@ -54,6 +57,47 @@ public class Model {
 		List<Adiacenza> risultato = new LinkedList<>(this.dao.getArchi(idMap, ruolo));
 		Collections.sort(risultato);
 		return risultato;
+	}
+	
+	public List<Artist> getPercorso(int s) {
+		Artist a = idMap.get(s);
+		if (a==null) {
+			return null;
+		}
+		this.percorsoMigliore = new LinkedList<>();
+		this.massimo = 0;
+		LinkedList<Artist> percorso = new LinkedList<>();
+		percorso.add(a);
+		ricorsione (a, 0, percorso, 0);
+		return this.percorsoMigliore;
+	}
+
+	private void ricorsione(Artist a, int l, List<Artist> percorso, double peso) {
+		if (l==0) {
+			for (Artist vicino : Graphs.neighborListOf(grafo, a)) {
+				percorso.add(vicino);
+				ricorsione(vicino, l+1, percorso, this.grafo.getEdgeWeight(this.grafo.getEdge(vicino, a)));
+				percorso.remove(vicino);
+			}
+		} else {
+		if (l>massimo) {
+			this.massimo = l;
+			this.esposizioni = (int) peso;
+			this.percorsoMigliore = new LinkedList<>(percorso);
+		}
+		for (Artist vicino : Graphs.neighborListOf(grafo, a)) {
+			if (this.grafo.getEdgeWeight(this.grafo.getEdge(vicino, a)) == peso && !percorso.contains(vicino)) {
+				percorso.add(vicino);
+				ricorsione(vicino, l+1, percorso, peso);
+				percorso.remove(vicino);
+			}
+		}
+		}
+		
+	}
+
+	public int getEsposizioni() {
+		return esposizioni;
 	}
 
 }

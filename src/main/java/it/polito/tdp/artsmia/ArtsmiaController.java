@@ -1,9 +1,11 @@
 package it.polito.tdp.artsmia;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.artsmia.model.Adiacenza;
+import it.polito.tdp.artsmia.model.Artist;
 import it.polito.tdp.artsmia.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -52,7 +54,21 @@ public class ArtsmiaController {
     @FXML
     void doCalcolaPercorso(ActionEvent event) {
     	txtResult.clear();
-    	txtResult.appendText("Calcola percorso");
+    	try {
+    		int id = Integer.parseInt(txtArtista.getText());
+    		List<Artist> risultato = this.model.getPercorso(id);
+    		if (risultato==null) {
+    			txtResult.setText("Errore: verificare di aver inserito un id corretto");
+    		} else {
+    			txtResult.appendText("Percorso migliore:\n");
+    			for (Artist a : risultato) {
+    				txtResult.appendText(a.toString()+"\n");
+    			}
+    			txtResult.appendText("Esposizioni che massimizzano il percorso: "+this.model.getEsposizioni());
+    		}
+    	} catch (NumberFormatException e) {
+    		txtResult.setText("Errore: inserire un numero valido nel campo id artista");
+    	}
     }
 
     @FXML
